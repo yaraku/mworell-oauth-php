@@ -48,7 +48,7 @@ class OAuthSession
             // Select the store you want to use
             if (strpos($store, '/') === false) {
                 $class = 'OAuth1\\session\\OAuthSession' . $store;
-                $file = dirname(__FILE__) . '/session/' . $class . '.php';
+                $file = __DIR__ . '/session/' . $class . '.php';
             } else {
                 $file = $store;
                 $store = basename($file, '.php');

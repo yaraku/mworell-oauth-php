@@ -31,7 +31,7 @@ namespace OAuth1\session;
  * THE SOFTWARE.
  */
 
-require_once dirname(__FILE__) . '/OAuthSessionAbstract.class.php';
+require_once __DIR__ . '/OAuthSessionAbstract.class.php';
 
 class OAuthSessionSESSION extends OAuthSessionAbstract
 {

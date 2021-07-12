@@ -33,7 +33,7 @@ namespace OAuth1\store;
  * THE SOFTWARE.
  */
 
-require_once dirname(__FILE__) . '/OAuthStoreSQL.php';
+require_once __DIR__ . '/OAuthStoreSQL.php';
 
 
 class OAuthStorePDO extends OAuthStoreSQL
@@ -240,7 +240,7 @@ class OAuthStorePDO extends OAuthStoreSQL
     public function install()
     {
         // TODO: this depends on mysql extension
-        require_once dirname(__FILE__) . '/mysql/install.php';
+        require_once __DIR__ . '/mysql/install.php';
     }
 
 }

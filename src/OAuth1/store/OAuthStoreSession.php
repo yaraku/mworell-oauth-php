@@ -33,7 +33,7 @@ namespace OAuth1\store;
  * THE SOFTWARE.
  */
 
-require_once dirname(__FILE__) . '/OAuthStoreAbstract.class.php';
+require_once __DIR__ . '/OAuthStoreAbstract.class.php';
 
 class OAuthStoreSession extends OAuthStoreAbstract
 {

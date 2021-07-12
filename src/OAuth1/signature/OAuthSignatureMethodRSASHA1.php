@@ -33,7 +33,7 @@ namespace OAuth1\signature;
  */
 
 
-require_once dirname(__FILE__) . '/OAuthSignatureMethod.class.php';
+require_once __DIR__ . '/OAuthSignatureMethod.class.php';
 
 class OAuthSignatureMethodRSASHA1 extends OAuthSignatureMethod
 {

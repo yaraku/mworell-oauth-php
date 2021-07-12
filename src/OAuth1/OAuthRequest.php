@@ -232,7 +232,7 @@ class OAuthRequest
             foreach ($methods as $m) {
                 $m = strtoupper($m);
                 $m2 = preg_replace('/[^A-Z0-9]/', '_', $m);
-                if (file_exists(dirname(__FILE__) . '/signature_method/OAuthSignatureMethod_' . $m2 . '.php')) {
+                if (file_exists(__DIR__ . '/signature_method/OAuthSignatureMethod_' . $m2 . '.php')) {
                     $method = $m;
                     break;
                 }

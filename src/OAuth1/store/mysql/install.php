@@ -17,7 +17,7 @@ if (mysql_errno())
 mysql_select_db('test');
 */
 
-$sql = file_get_contents(dirname(__FILE__) . '/mysql.sql');
+$sql = file_get_contents(__DIR__ . '/mysql.sql');
 $ps = explode('#--SPLIT--', $sql);
 
 foreach ($ps as $p) {

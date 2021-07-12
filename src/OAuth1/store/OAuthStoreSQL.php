@@ -37,7 +37,7 @@ use OAuth1\OAuthException2;
  */
 
 
-require_once dirname(__FILE__) . '/OAuthStoreAbstract.php';
+require_once __DIR__ . '/OAuthStoreAbstract.php';
 
 
 abstract class OAuthStoreSQL extends OAuthStoreAbstract

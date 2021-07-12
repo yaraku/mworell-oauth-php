@@ -33,7 +33,7 @@ namespace OAuth1\store;
  * THE SOFTWARE.
  */
 
-require_once dirname(__FILE__) . '/OAuthStoreSQL.php';
+require_once __DIR__ . '/OAuthStoreSQL.php';
 
 
 class OAuthStoreMySQLi extends OAuthStoreSQL
@@ -45,7 +45,7 @@ class OAuthStoreMySQLi extends OAuthStoreSQL
 
     public function install()
     {
-        $sql = file_get_contents(dirname(__FILE__) . '/mysql/mysql.sql');
+        $sql = file_get_contents(__DIR__ . '/mysql/mysql.sql');
         $ps = explode('#--SPLIT--', $sql);
 
         foreach ($ps as $p) {

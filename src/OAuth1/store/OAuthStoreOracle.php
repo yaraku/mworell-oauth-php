@@ -34,7 +34,7 @@ namespace OAuth1\store;
  * THE SOFTWARE.
  */
 
-require_once dirname(__FILE__) . '/OAuthStoreAbstract.class.php';
+require_once __DIR__ . '/OAuthStoreAbstract.class.php';
 
 abstract class OAuthStoreOracle extends OAuthStoreAbstract
 {
@@ -1482,7 +1482,7 @@ abstract class OAuthStoreOracle extends OAuthStoreAbstract
      */
     public function install()
     {
-        require_once dirname(__FILE__) . '/oracle/install.php';
+        require_once __DIR__ . '/oracle/install.php';
     }
 }
 

@@ -48,7 +48,7 @@ class OAuthStore
             // Select the store you want to use
             if (strpos($store, '/') === false) {
                 $class = 'OAuth1\\store\\OAuthStore' . $store;
-                $file = dirname(__FILE__) . '/store/' . $class . '.php';
+                $file = __DIR__ . '/store/' . $class . '.php';
             } else {
                 $file = $store;
                 $store = basename($file, '.php');
