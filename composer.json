@@ -1,5 +1,5 @@
 {
-    "name": "zorrodg/oauth-php",
+    "name": "yaraku/mworell-oauth-php",
     "description": "OAuth composer implementation from oauth-php library from Marc Worrell",
     "license": "MIT",
     "authors": [
@@ -12,8 +12,15 @@
             "email": "zorrodg@gmail.com"
         }
     ],
+    "version": "0.1.1",
     "require": {
         "php": ">=5.3.0"
+    },
+    "replace": {
+        "zorrodg/oauth-php": "0.1.*"
+    },
+    "provide": {
+        "zorrodg/oauth-php": "self.version"
     },
     "autoload":{
         "psr-0": {
