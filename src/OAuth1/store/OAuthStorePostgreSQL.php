@@ -8,24 +8,24 @@ namespace OAuth1\store;
  *
  * @author Elma R&D Team  <rdteam@elma.fr>
  * @link http://elma.fr
- * 
+ *
  * @Id 2010-10-22 10:07:18 ndelanoe $
  * @version $Id: OAuthStorePostgreSQL.php 175 2010-11-24 19:52:24Z brunobg@corollarium.com $
- * 
+ *
  * The MIT License
- * 
+ *
  * Copyright (c) 2007-2008 Mediamatic Lab
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in
  * all copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -71,41 +71,32 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      *
      * @param array options
      */
-    function __construct ( $options = array() )
+    function __construct($options = array())
     {
-        if (isset($options['conn']))
-        {
+        if (isset($options['conn'])) {
             $this->conn = $options['conn'];
-        }
-        else
-        {
-            if (isset($options['server']))
-            {
-                $host   = $options['server'];
+        } else {
+            if (isset($options['server'])) {
+                $host = $options['server'];
                 $user = $options['username'];
                 $dbname = $options['database'];
 
                 $connectionString = sprintf('host=%s dbname=%s user=%s', $host, $dbname, $user);
 
-                if (isset($options['password']))
-                {
+                if (isset($options['password'])) {
                     $connectionString .= ' password=' . $options['password'];
                 }
 
                 $this->conn = pg_connect($connectionString);
-            }
-            elseif (isset($options['connectionString']))
-            {
+            } elseif (isset($options['connectionString'])) {
                 $this->conn = pg_connect($options['connectionString']);
-            }
-            else {
+            } else {
 
                 // Try the default  pg connect
                 $this->conn = pg_connect();
             }
 
-            if ($this->conn === false)
-            {
+            if ($this->conn === false) {
                 throw new OAuthException2('Could not connect to PostgresSQL database');
             }
         }
@@ -121,10 +112,9 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @exception OAuthException2 when no secrets where found
      * @return array    assoc (consumer_secret, token_secret, osr_id, ost_id, user_id)
      */
-    public function getSecretsForVerify ( $consumer_key, $token, $token_type = 'access' )
+    public function getSecretsForVerify($consumer_key, $token, $token_type = 'access')
     {
-        if ($token_type === false)
-        {
+        if ($token_type === false) {
             $rs = $this->query_row_assoc('
                         SELECT    osr_id,
                                 osr_consumer_key        as consumer_key,
@@ -133,18 +123,15 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                         WHERE osr_consumer_key    = \'%s\'
                           AND osr_enabled        = \'1\'
                         ',
-                        $consumer_key);
+                $consumer_key);
 
-            if ($rs)
-            {
-                $rs['token']         = false;
-                $rs['token_secret']    = false;
-                $rs['user_id']        = false;
-                $rs['ost_id']        = false;
+            if ($rs) {
+                $rs['token'] = false;
+                $rs['token_secret'] = false;
+                $rs['user_id'] = false;
+                $rs['ost_id'] = false;
             }
-        }
-        else
-        {
+        } else {
             $rs = $this->query_row_assoc('
                         SELECT    osr_id,
                                 ost_id,
@@ -162,12 +149,11 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                            AND osr_enabled        = \'1\'
                           AND ost_token_ttl     >= NOW()
                         ',
-                        $token_type, $consumer_key, $token);
+                $token_type, $consumer_key, $token);
         }
 
-        if (empty($rs))
-        {
-            throw new OAuthException2('The consumer_key "'.$consumer_key.'" token "'.$token.'" combination does not exist or is not enabled.');
+        if (empty($rs)) {
+            throw new OAuthException2('The consumer_key "' . $consumer_key . '" token "' . $token . '" combination does not exist or is not enabled.');
         }
         return $rs;
     }
@@ -186,22 +172,21 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * token_secret            secret for the access token
      * signature_methods    signing methods supported by the server (array)
      *
-     * @todo filter on token type (we should know how and with what to sign this request, and there might be old access tokens)
      * @param string uri    uri of the server
      * @param int user_id    id of the logged on user
      * @param string name    (optional) name of the token (case sensitive)
      * @exception OAuthException2 when no credentials found
      * @return array
+     * @todo filter on token type (we should know how and with what to sign this request, and there might be old access tokens)
      */
-    public function getSecretsForSignature ( $uri, $user_id, $name = '' )
+    public function getSecretsForSignature($uri, $user_id, $name = '')
     {
         // Find a consumer key and token for the given uri
-        $ps        = parse_url($uri);
-        $host    = isset($ps['host']) ? $ps['host'] : 'localhost';
-        $path    = isset($ps['path']) ? $ps['path'] : '';
+        $ps = parse_url($uri);
+        $host = isset($ps['host']) ? $ps['host'] : 'localhost';
+        $path = isset($ps['path']) ? $ps['path'] : '';
 
-        if (empty($path) || substr($path, -1) != '/')
-        {
+        if (empty($path) || substr($path, -1) != '/') {
             $path .= '/';
         }
 
@@ -224,11 +209,10 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                     ORDER BY ocr_usa_id_ref DESC, ocr_consumer_secret DESC, LENGTH(ocr_server_uri_path) DESC
                     LIMIT 1
                     ', $host, $path, $user_id, $user_id, $name
-                    );
+        );
 
-        if (empty($secrets))
-        {
-            throw new OAuthException2('No server tokens available for '.$uri);
+        if (empty($secrets)) {
+            throw new OAuthException2('No server tokens available for ' . $uri);
         }
         $secrets['signature_methods'] = explode(',', $secrets['signature_methods']);
         return $secrets;
@@ -245,11 +229,10 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @exception OAuthException2 when no credentials found
      * @return array
      */
-    public function getServerTokenSecrets ( $consumer_key, $token, $token_type, $user_id, $name = '' )
+    public function getServerTokenSecrets($consumer_key, $token, $token_type, $user_id, $name = '')
     {
-        if ($token_type != 'request' && $token_type != 'access')
-        {
-            throw new OAuthException2('Unkown token type "'.$token_type.'", must be either "request" or "access"');
+        if ($token_type != 'request' && $token_type != 'access') {
+            throw new OAuthException2('Unkown token type "' . $token_type . '", must be either "request" or "access"');
         }
 
         // Take the most recent token of the given type
@@ -274,18 +257,14 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                       AND oct_usa_id_ref   = \'%d\'
                       AND oct_token_ttl    >= NOW()
                     ', $consumer_key, $token_type, $token, $user_id
-                    );
+        );
 
-        if (empty($r))
-        {
-            throw new OAuthException2('Could not find a "'.$token_type.'" token for consumer "'.$consumer_key.'" and user '.$user_id);
+        if (empty($r)) {
+            throw new OAuthException2('Could not find a "' . $token_type . '" token for consumer "' . $consumer_key . '" and user ' . $user_id);
         }
-        if (isset($r['signature_methods']) && !empty($r['signature_methods']))
-        {
-            $r['signature_methods'] = explode(',',$r['signature_methods']);
-        }
-        else
-        {
+        if (isset($r['signature_methods']) && !empty($r['signature_methods'])) {
+            $r['signature_methods'] = explode(',', $r['signature_methods']);
+        } else {
             $r['signature_methods'] = array();
         }
         return $r;
@@ -295,7 +274,6 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
     /**
      * Add a request token we obtained from a server.
      *
-     * @todo remove old tokens for this user and this ocr_id
      * @param string consumer_key    key of the server in the consumer registry
      * @param string token_type        one of 'request' or 'access'
      * @param string token
@@ -304,30 +282,24 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param array  options            extra options, name and token_ttl
      * @exception OAuthException2 when server is not known
      * @exception OAuthException2 when we received a duplicate token
+     * @todo remove old tokens for this user and this ocr_id
      */
-    public function addServerToken ( $consumer_key, $token_type, $token, $token_secret, $user_id, $options = array() )
+    public function addServerToken($consumer_key, $token_type, $token, $token_secret, $user_id, $options = array())
     {
-        if ($token_type != 'request' && $token_type != 'access')
-        {
-            throw new OAuthException2('Unknown token type "'.$token_type.'", must be either "request" or "access"');
+        if ($token_type != 'request' && $token_type != 'access') {
+            throw new OAuthException2('Unknown token type "' . $token_type . '", must be either "request" or "access"');
         }
 
         // Maximum time to live for this token
-        if (isset($options['token_ttl']) && is_numeric($options['token_ttl']))
-        {
-            $ttl = 'NOW() + INTERVAL \''.intval($options['token_ttl']).' SECOND\'';
-        }
-        else if ($token_type == 'request')
-        {
-            $ttl = 'NOW() + INTERVAL \''.$this->max_request_token_ttl.' SECOND\'';
-        }
-        else
-        {
+        if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
+            $ttl = 'NOW() + INTERVAL \'' . intval($options['token_ttl']) . ' SECOND\'';
+        } else if ($token_type == 'request') {
+            $ttl = 'NOW() + INTERVAL \'' . $this->max_request_token_ttl . ' SECOND\'';
+        } else {
             $ttl = "'9999-12-31'";
         }
 
-        if (isset($options['server_uri']))
-        {
+        if (isset($options['server_uri'])) {
             $ocr_id = $this->query_one('
                         SELECT ocr_id
                         FROM oauth_consumer_registry
@@ -335,9 +307,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                         AND ocr_usa_id_ref = \'%d\'
                         AND ocr_server_uri = \'%s\'
                         ', $consumer_key, $user_id, $options['server_uri']);
-        }
-        else
-        {
+        } else {
             $ocr_id = $this->query_one('
                         SELECT ocr_id
                         FROM oauth_consumer_registry
@@ -346,18 +316,14 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                         ', $consumer_key, $user_id);
         }
 
-        if (empty($ocr_id))
-        {
-            throw new OAuthException2('No server associated with consumer_key "'.$consumer_key.'"');
+        if (empty($ocr_id)) {
+            throw new OAuthException2('No server associated with consumer_key "' . $consumer_key . '"');
         }
 
         // Named tokens, unique per user/consumer key
-        if (isset($options['name']) && $options['name'] != '')
-        {
+        if (isset($options['name']) && $options['name'] != '') {
             $name = $options['name'];
-        }
-        else
-        {
+        } else {
             $name = '';
         }
 
@@ -369,10 +335,10 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                       AND oct_token_type::text = LOWER(\'%s\')::text
                       AND oct_name       = \'%s\'
                     ',
-                    $ocr_id,
-                    $user_id,
-                    $token_type,
-                    $name);
+            $ocr_id,
+            $user_id,
+            $token_type,
+            $name);
 
         // Insert the new token
         $this->query('
@@ -387,17 +353,16 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                    oct_timestamp,
                    oct_token_ttl
                )
-               VALUES (%d,%d,\'%s\',\'%s\',\'%s\',\'%s\',NOW(),'.$ttl.')',
-                    $ocr_id,
-                    $user_id,
-                    $name,
-                    $token,
-                    $token_secret,
-                    $token_type);
+               VALUES (%d,%d,\'%s\',\'%s\',\'%s\',\'%s\',NOW(),' . $ttl . ')',
+            $ocr_id,
+            $user_id,
+            $name,
+            $token,
+            $token_secret,
+            $token_type);
 
-        if (!$this->query_affected_rows())
-        {
-            throw new OAuthException2('Received duplicate token "'.$token.'" for the same consumer_key "'.$consumer_key.'"');
+        if (!$this->query_affected_rows()) {
+            throw new OAuthException2('Received duplicate token "' . $token . '" for the same consumer_key "' . $consumer_key . '"');
         }
     }
 
@@ -408,18 +373,15 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int user_id    user registering this server
      * @param boolean user_is_admin
      */
-    public function deleteServer ( $consumer_key, $user_id, $user_is_admin = false )
+    public function deleteServer($consumer_key, $user_id, $user_is_admin = false)
     {
-        if ($user_is_admin)
-        {
+        if ($user_is_admin) {
             $this->query('
                     DELETE FROM oauth_consumer_registry
                     WHERE ocr_consumer_key = \'%s\'
                       AND (ocr_usa_id_ref = \'%d\' OR ocr_usa_id_ref IS NULL)
                     ', $consumer_key, $user_id);
-        }
-        else
-        {
+        } else {
             $this->query('
                     DELETE FROM oauth_consumer_registry
                     WHERE ocr_consumer_key = \'%s\'
@@ -438,7 +400,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @exception OAuthException2 when server is not found
      * @return array
      */
-    public function getServer ( $consumer_key, $user_id, $user_is_admin = false )
+    public function getServer($consumer_key, $user_id, $user_is_admin = false)
     {
         $r = $this->query_row_assoc('
                 SELECT    ocr_id                    as id,
@@ -453,19 +415,15 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                 FROM oauth_consumer_registry
                 WHERE ocr_consumer_key = \'%s\'
                   AND (ocr_usa_id_ref = \'%d\' OR ocr_usa_id_ref IS NULL)
-                ',    $consumer_key, $user_id);
+                ', $consumer_key, $user_id);
 
-        if (empty($r))
-        {
-            throw new OAuthException2('No server with consumer_key "'.$consumer_key.'" has been registered (for this user)');
+        if (empty($r)) {
+            throw new OAuthException2('No server with consumer_key "' . $consumer_key . '" has been registered (for this user)');
         }
 
-        if (isset($r['signature_methods']) && !empty($r['signature_methods']))
-        {
-            $r['signature_methods'] = explode(',',$r['signature_methods']);
-        }
-        else
-        {
+        if (isset($r['signature_methods']) && !empty($r['signature_methods'])) {
+            $r['signature_methods'] = explode(',', $r['signature_methods']);
+        } else {
             $r['signature_methods'] = array();
         }
         return $r;
@@ -482,15 +440,14 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @exception OAuthException2 when no credentials found
      * @return array
      */
-    public function getServerForUri ( $uri, $user_id )
+    public function getServerForUri($uri, $user_id)
     {
         // Find a consumer key and token for the given uri
-        $ps        = parse_url($uri);
-        $host    = isset($ps['host']) ? $ps['host'] : 'localhost';
-        $path    = isset($ps['path']) ? $ps['path'] : '';
+        $ps = parse_url($uri);
+        $host = isset($ps['host']) ? $ps['host'] : 'localhost';
+        $path = isset($ps['path']) ? $ps['path'] : '';
 
-        if (empty($path) || substr($path, -1) != '/')
-        {
+        if (empty($path) || substr($path, -1) != '/') {
             $path .= '/';
         }
 
@@ -512,11 +469,10 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                     ORDER BY ocr_usa_id_ref DESC, consumer_secret DESC, LENGTH(ocr_server_uri_path) DESC
                     LIMIT 1
                     ', $host, $path, $user_id
-                    );
+        );
 
-        if (empty($server))
-        {
-            throw new OAuthException2('No server available for '.$uri);
+        if (empty($server)) {
+            throw new OAuthException2('No server available for ' . $uri);
         }
         $server['signature_methods'] = explode(',', $server['signature_methods']);
         return $server;
@@ -528,7 +484,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int usr_id
      * @return array
      */
-    public function listServerTokens ( $user_id )
+    public function listServerTokens($user_id)
     {
         $ts = $this->query_all_assoc('
                     SELECT    ocr_consumer_key        as consumer_key,
@@ -556,13 +512,13 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
         return $ts;
     }
 
-     /**
+    /**
      * Count how many tokens we have for the given server
      *
      * @param string consumer_key
      * @return int
      */
-    public function countServerTokens ( $consumer_key )
+    public function countServerTokens($consumer_key)
     {
         $count = $this->query_one('
                     SELECT COUNT(oct_id)
@@ -586,7 +542,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @exception OAuthException2 when no such token found
      * @return array
      */
-    public function getServerToken ( $consumer_key, $token, $user_id )
+    public function getServerToken($consumer_key, $token, $user_id)
     {
         $ts = $this->query_row_assoc('
                     SELECT    ocr_consumer_key        as consumer_key,
@@ -612,9 +568,8 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                       AND oct_token_ttl    >= NOW()
                     ', $consumer_key, $user_id, $token);
 
-        if (empty($ts))
-        {
-            throw new OAuthException2('No such consumer key ('.$consumer_key.') and token ('.$token.') combination for user "'.$user_id.'"');
+        if (empty($ts)) {
+            throw new OAuthException2('No such consumer key (' . $consumer_key . ') and token (' . $token . ') combination for user "' . $user_id . '"');
         }
         return $ts;
     }
@@ -628,10 +583,9 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int user_id
      * @param boolean user_is_admin
      */
-    public function deleteServerToken ( $consumer_key, $token, $user_id, $user_is_admin = false )
+    public function deleteServerToken($consumer_key, $token, $user_id, $user_is_admin = false)
     {
-        if ($user_is_admin)
-        {
+        if ($user_is_admin) {
             $this->query('
                 DELETE FROM oauth_consumer_token
                     USING oauth_consumer_registry
@@ -640,9 +594,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                     AND ocr_consumer_key    = \'%s\'
                     AND oct_token            = \'%s\'
                 ', $consumer_key, $token);
-        }
-        else
-        {
+        } else {
             $this->query('
                 DELETE FROM oauth_consumer_token
                     USING oauth_consumer_registry
@@ -663,15 +615,12 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param string token
      * @param int token_ttl
      */
-    public function setServerTokenTtl ( $consumer_key, $token, $token_ttl )
+    public function setServerTokenTtl($consumer_key, $token, $token_ttl)
     {
-        if ($token_ttl <= 0)
-        {
+        if ($token_ttl <= 0) {
             // Immediate delete when the token is past its ttl
             $this->deleteServerToken($consumer_key, $token, 0, true);
-        }
-        else
-        {
+        } else {
             // Set maximum time to live for this token
             $this->query('
                         UPDATE oauth_consumer_token
@@ -700,13 +649,12 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int user_id
      * @return array
      */
-    public function listServers ( $q = '', $user_id )
+    public function listServers($q = '', $user_id)
     {
-        $q    = trim(str_replace('%', '', $q));
+        $q = trim(str_replace('%', '', $q));
         $args = array();
 
-        if (!empty($q))
-        {
+        if (!empty($q)) {
             $where = ' WHERE (    ocr_consumer_key like \'%%%s%%\'
                                OR ocr_server_uri like \'%%%s%%\'
                                OR ocr_server_uri_host like \'%%%s%%\'
@@ -719,10 +667,8 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
             $args[] = $q;
             $args[] = $q;
             $args[] = $user_id;
-        }
-        else
-        {
-            $where  = ' WHERE ocr_usa_id_ref = \'%d\' OR ocr_usa_id_ref IS NULL';
+        } else {
+            $where = ' WHERE ocr_usa_id_ref = \'%d\' OR ocr_usa_id_ref IS NULL';
             $args[] = $user_id;
         }
 
@@ -739,7 +685,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                             ocr_authorize_uri        as authorize_uri,
                             ocr_access_token_uri    as access_token_uri
                     FROM oauth_consumer_registry
-                    '.$where.'
+                    ' . $where . '
                     ORDER BY ocr_server_uri_host, ocr_server_uri_path
                     ', $args);
         return $servers;
@@ -756,18 +702,15 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @exception OAuthException2 when fields are missing or on duplicate consumer_key
      * @return consumer_key
      */
-    public function updateServer ( $server, $user_id, $user_is_admin = false )
+    public function updateServer($server, $user_id, $user_is_admin = false)
     {
-        foreach (array('consumer_key', 'server_uri') as $f)
-        {
-            if (empty($server[$f]))
-            {
-                throw new OAuthException2('The field "'.$f.'" must be set and non empty');
+        foreach (array('consumer_key', 'server_uri') as $f) {
+            if (empty($server[$f])) {
+                throw new OAuthException2('The field "' . $f . '" must be set and non empty');
             }
         }
 
-        if (!empty($server['id']))
-        {
+        if (!empty($server['id'])) {
             $exists = $this->query_one('
                         SELECT ocr_id
                         FROM oauth_consumer_registry
@@ -775,9 +718,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                           AND ocr_id <> %d
                           AND (ocr_usa_id_ref = \'%d\' OR ocr_usa_id_ref IS NULL)
                         ', $server['consumer_key'], $server['id'], $user_id);
-        }
-        else
-        {
+        } else {
             $exists = $this->query_one('
                         SELECT ocr_id
                         FROM oauth_consumer_registry
@@ -786,58 +727,44 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                         ', $server['consumer_key'], $user_id);
         }
 
-        if ($exists)
-        {
-            throw new OAuthException2('The server with key "'.$server['consumer_key'].'" has already been registered');
+        if ($exists) {
+            throw new OAuthException2('The server with key "' . $server['consumer_key'] . '" has already been registered');
         }
 
         $parts = parse_url($server['server_uri']);
-        $host  = (isset($parts['host']) ? $parts['host'] : 'localhost');
-        $path  = (isset($parts['path']) ? $parts['path'] : '/');
+        $host = (isset($parts['host']) ? $parts['host'] : 'localhost');
+        $path = (isset($parts['path']) ? $parts['path'] : '/');
 
-        if (isset($server['signature_methods']))
-        {
-            if (is_array($server['signature_methods']))
-            {
+        if (isset($server['signature_methods'])) {
+            if (is_array($server['signature_methods'])) {
                 $server['signature_methods'] = strtoupper(implode(',', $server['signature_methods']));
             }
-        }
-        else
-        {
+        } else {
             $server['signature_methods'] = '';
         }
 
         // When the user is an admin, then the user can update the user_id of this record
-        if ($user_is_admin && array_key_exists('user_id', $server))
-        {
-            if (is_null($server['user_id']))
-            {
-                $update_user =  ', ocr_usa_id_ref = NULL';
+        if ($user_is_admin && array_key_exists('user_id', $server)) {
+            if (is_null($server['user_id'])) {
+                $update_user = ', ocr_usa_id_ref = NULL';
+            } else {
+                $update_user = ', ocr_usa_id_ref = \'' . intval($server['user_id']) . '\'';
             }
-            else
-            {
-                $update_user =  ', ocr_usa_id_ref = \''. intval($server['user_id']) . '\'';
-            }
-        }
-        else
-        {
+        } else {
             $update_user = '';
         }
 
-        if (!empty($server['id']))
-        {
+        if (!empty($server['id'])) {
             // Check if the current user can update this server definition
-            if (!$user_is_admin)
-            {
+            if (!$user_is_admin) {
                 $ocr_usa_id_ref = $this->query_one('
                                     SELECT ocr_usa_id_ref
                                     FROM oauth_consumer_registry
                                     WHERE ocr_id = %d
                                     ', $server['id']);
 
-                if ($ocr_usa_id_ref != $user_id)
-                {
-                    throw new OAuthException2('The user "'.$user_id.'" is not allowed to update this server');
+                if ($ocr_usa_id_ref != $user_id) {
+                    throw new OAuthException2('The user "' . $user_id . '" is not allowed to update this server');
                 }
             }
 
@@ -854,29 +781,26 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                         ocr_authorize_uri        = \'%s\',
                         ocr_access_token_uri    = \'%s\',
                         ocr_signature_methods    = \'%s\'
-                        '.$update_user.'
+                        ' . $update_user . '
                     WHERE ocr_id = %d
                     ',
-                    $server['consumer_key'],
-                    $server['consumer_secret'],
-                    $server['server_uri'],
-                    strtolower($host),
-                    $path,
-                    isset($server['request_token_uri']) ? $server['request_token_uri'] : '',
-                    isset($server['authorize_uri'])     ? $server['authorize_uri']     : '',
-                    isset($server['access_token_uri'])  ? $server['access_token_uri']  : '',
-                    $server['signature_methods'],
-                    $server['id']
-                    );
-        }
-        else
-        {
+                $server['consumer_key'],
+                $server['consumer_secret'],
+                $server['server_uri'],
+                strtolower($host),
+                $path,
+                isset($server['request_token_uri']) ? $server['request_token_uri'] : '',
+                isset($server['authorize_uri']) ? $server['authorize_uri'] : '',
+                isset($server['access_token_uri']) ? $server['access_token_uri'] : '',
+                $server['signature_methods'],
+                $server['id']
+            );
+        } else {
             $update_user_field = '';
             $update_user_value = '';
-            if (empty($update_user))
-            {
+            if (empty($update_user)) {
                 // Per default the user owning the key is the user registering the key
-                $update_user_field =  ', ocr_usa_id_ref';
+                $update_user_field = ', ocr_usa_id_ref';
                 $update_user_value = ', ' . intval($user_id);
             }
 
@@ -893,17 +817,17 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                     ocr_access_token_uri ,
                     ocr_signature_methods' . $update_user_field . '
                 )
-                VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', NOW(), \'%s\', \'%s\', \'%s\', \'%s\''. $update_user_value . ')',
-                    $server['consumer_key'],
-                    $server['consumer_secret'],
-                    $server['server_uri'],
-                    strtolower($host),
-                    $path,
-                    isset($server['request_token_uri']) ? $server['request_token_uri'] : '',
-                    isset($server['authorize_uri'])     ? $server['authorize_uri']     : '',
-                    isset($server['access_token_uri'])  ? $server['access_token_uri']  : '',
-                    $server['signature_methods']
-                    );
+                VALUES (\'%s\', \'%s\', \'%s\', \'%s\', \'%s\', NOW(), \'%s\', \'%s\', \'%s\', \'%s\'' . $update_user_value . ')',
+                $server['consumer_key'],
+                $server['consumer_secret'],
+                $server['server_uri'],
+                strtolower($host),
+                $path,
+                isset($server['request_token_uri']) ? $server['request_token_uri'] : '',
+                isset($server['authorize_uri']) ? $server['authorize_uri'] : '',
+                isset($server['access_token_uri']) ? $server['access_token_uri'] : '',
+                $server['signature_methods']
+            );
 
             $ocr_id = $this->query_insert_id('oauth_consumer_registry', 'ocr_id');
         }
@@ -925,59 +849,45 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param boolean user_is_admin
      * @return string consumer key
      */
-    public function updateConsumer ( $consumer, $user_id, $user_is_admin = false )
+    public function updateConsumer($consumer, $user_id, $user_is_admin = false)
     {
-        if (!$user_is_admin)
-        {
-            foreach (array('requester_name', 'requester_email') as $f)
-            {
-                if (empty($consumer[$f]))
-                {
-                    throw new OAuthException2('The field "'.$f.'" must be set and non empty');
+        if (!$user_is_admin) {
+            foreach (array('requester_name', 'requester_email') as $f) {
+                if (empty($consumer[$f])) {
+                    throw new OAuthException2('The field "' . $f . '" must be set and non empty');
                 }
             }
         }
 
-        if (!empty($consumer['id']))
-        {
-            if (empty($consumer['consumer_key']))
-            {
+        if (!empty($consumer['id'])) {
+            if (empty($consumer['consumer_key'])) {
                 throw new OAuthException2('The field "consumer_key" must be set and non empty');
             }
-            if (!$user_is_admin && empty($consumer['consumer_secret']))
-            {
+            if (!$user_is_admin && empty($consumer['consumer_secret'])) {
                 throw new OAuthException2('The field "consumer_secret" must be set and non empty');
             }
 
             // Check if the current user can update this server definition
-            if (!$user_is_admin)
-            {
+            if (!$user_is_admin) {
                 $osr_usa_id_ref = $this->query_one('
                                     SELECT osr_usa_id_ref
                                     FROM oauth_server_registry
                                     WHERE osr_id = %d
                                     ', $consumer['id']);
 
-                if ($osr_usa_id_ref != $user_id)
-                {
-                    throw new OAuthException2('The user "'.$user_id.'" is not allowed to update this consumer');
+                if ($osr_usa_id_ref != $user_id) {
+                    throw new OAuthException2('The user "' . $user_id . '" is not allowed to update this consumer');
                 }
-            }
-            else
-            {
+            } else {
                 // User is an admin, allow a key owner to be changed or key to be shared
-                if (array_key_exists('user_id',$consumer))
-                {
-                    if (is_null($consumer['user_id']))
-                    {
+                if (array_key_exists('user_id', $consumer)) {
+                    if (is_null($consumer['user_id'])) {
                         $this->query('
                             UPDATE oauth_server_registry
                             SET osr_usa_id_ref = NULL
                             WHERE osr_id = %d
                             ', $consumer['id']);
-                    }
-                    else
-                    {
+                    } else {
                         $this->query('
                             UPDATE oauth_server_registry
                             SET osr_usa_id_ref = \'%d\'
@@ -1005,40 +915,32 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                 ',
                 $consumer['requester_name'],
                 $consumer['requester_email'],
-                isset($consumer['callback_uri'])         ? $consumer['callback_uri']              : '',
-                isset($consumer['application_uri'])     ? $consumer['application_uri']              : '',
-                isset($consumer['application_title'])    ? $consumer['application_title']          : '',
-                isset($consumer['application_descr'])    ? $consumer['application_descr']          : '',
-                isset($consumer['application_notes'])    ? $consumer['application_notes']          : '',
-                isset($consumer['application_type'])     ? $consumer['application_type']          : '',
+                isset($consumer['callback_uri']) ? $consumer['callback_uri'] : '',
+                isset($consumer['application_uri']) ? $consumer['application_uri'] : '',
+                isset($consumer['application_title']) ? $consumer['application_title'] : '',
+                isset($consumer['application_descr']) ? $consumer['application_descr'] : '',
+                isset($consumer['application_notes']) ? $consumer['application_notes'] : '',
+                isset($consumer['application_type']) ? $consumer['application_type'] : '',
                 isset($consumer['application_commercial']) ? $consumer['application_commercial'] : 0,
                 $consumer['id'],
                 $consumer['consumer_key'],
                 $consumer['consumer_secret']
-                );
+            );
 
 
             $consumer_key = $consumer['consumer_key'];
-        }
-        else
-        {
-            $consumer_key    = $this->generateKey(true);
-            $consumer_secret= $this->generateKey();
+        } else {
+            $consumer_key = $this->generateKey(true);
+            $consumer_secret = $this->generateKey();
 
             // When the user is an admin, then the user can be forced to something else that the user
-            if ($user_is_admin && array_key_exists('user_id',$consumer))
-            {
-                if (is_null($consumer['user_id']))
-                {
+            if ($user_is_admin && array_key_exists('user_id', $consumer)) {
+                if (is_null($consumer['user_id'])) {
                     $owner_id = 'NULL';
-                }
-                else
-                {
+                } else {
                     $owner_id = intval($consumer['user_id']);
                 }
-            }
-            else
-            {
+            } else {
                 // No admin, take the user id as the owner id.
                 $owner_id = intval($user_id);
             }
@@ -1069,14 +971,14 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                 $consumer_secret,
                 $consumer['requester_name'],
                 $consumer['requester_email'],
-                isset($consumer['callback_uri'])         ? $consumer['callback_uri']              : '',
-                isset($consumer['application_uri'])     ? $consumer['application_uri']              : '',
-                isset($consumer['application_title'])    ? $consumer['application_title']          : '',
-                isset($consumer['application_descr'])    ? $consumer['application_descr']          : '',
-                isset($consumer['application_notes'])    ? $consumer['application_notes']          : '',
-                isset($consumer['application_type'])     ? $consumer['application_type']          : '',
+                isset($consumer['callback_uri']) ? $consumer['callback_uri'] : '',
+                isset($consumer['application_uri']) ? $consumer['application_uri'] : '',
+                isset($consumer['application_title']) ? $consumer['application_title'] : '',
+                isset($consumer['application_descr']) ? $consumer['application_descr'] : '',
+                isset($consumer['application_notes']) ? $consumer['application_notes'] : '',
+                isset($consumer['application_type']) ? $consumer['application_type'] : '',
                 isset($consumer['application_commercial']) ? $consumer['application_commercial'] : 0
-                );
+            );
         }
         return $consumer_key;
 
@@ -1089,18 +991,15 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int user_id    user registering this server
      * @param boolean user_is_admin
      */
-    public function deleteConsumer ( $consumer_key, $user_id, $user_is_admin = false )
+    public function deleteConsumer($consumer_key, $user_id, $user_is_admin = false)
     {
-        if ($user_is_admin)
-        {
+        if ($user_is_admin) {
             $this->query('
                     DELETE FROM oauth_server_registry
                     WHERE osr_consumer_key = \'%s\'
                       AND (osr_usa_id_ref = \'%d\' OR osr_usa_id_ref IS NULL)
                     ', $consumer_key, $user_id);
-        }
-        else
-        {
+        } else {
             $this->query('
                     DELETE FROM oauth_server_registry
                     WHERE osr_consumer_key = \'%s\'
@@ -1118,7 +1017,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @exception OAuthException2 when consumer not found
      * @return array
      */
-    public function getConsumer ( $consumer_key, $user_id, $user_is_admin = false )
+    public function getConsumer($consumer_key, $user_id, $user_is_admin = false)
     {
         $consumer = $this->query_row_assoc('
                         SELECT    *
@@ -1126,21 +1025,18 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                         WHERE osr_consumer_key = \'%s\'
                         ', $consumer_key);
 
-        if (!is_array($consumer))
-        {
-            throw new OAuthException2('No consumer with consumer_key "'.$consumer_key.'"');
+        if (!is_array($consumer)) {
+            throw new OAuthException2('No consumer with consumer_key "' . $consumer_key . '"');
         }
 
         $c = array();
-        foreach ($consumer as $key => $value)
-        {
+        foreach ($consumer as $key => $value) {
             $c[substr($key, 4)] = $value;
         }
         $c['user_id'] = $c['usa_id_ref'];
 
-        if (!$user_is_admin && !empty($c['user_id']) && $c['user_id'] != $user_id)
-        {
-            throw new OAuthException2('No access to the consumer information for consumer_key "'.$consumer_key.'"');
+        if (!$user_is_admin && !empty($c['user_id']) && $c['user_id'] != $user_id) {
+            throw new OAuthException2('No access to the consumer information for consumer_key "' . $consumer_key . '"');
         }
         return $c;
     }
@@ -1152,7 +1048,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      *
      * @return string
      */
-    public function getConsumerStatic ()
+    public function getConsumerStatic()
     {
         $consumer = $this->query_one('
                         SELECT osr_consumer_key
@@ -1161,9 +1057,8 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                           AND osr_usa_id_ref IS NULL
                         ');
 
-        if (empty($consumer))
-        {
-            $consumer_key = 'sc-'.$this->generateKey(true);
+        if (empty($consumer)) {
+            $consumer_key = 'sc-' . $this->generateKey(true);
             $this->query('
                 INSERT INTO oauth_server_registry (
                     osr_enabled,
@@ -1186,7 +1081,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                 VALUES (\'1\',\'active\', NULL, \'%s\', \'\', \'\', \'\', \'\', \'\', \'Static shared consumer key\', \'\', \'Static shared consumer key\', \'\', 0, NOW(), NOW())
                 ',
                 $consumer_key
-                );
+            );
 
             // Just make sure that if the consumer key is truncated that we get the truncated string
             $consumer = $this->getConsumerStatic();
@@ -1201,35 +1096,31 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param array options        (eg. token_ttl)
      * @return array (token, token_secret)
      */
-    public function addConsumerRequestToken ( $consumer_key, $options = array() )
+    public function addConsumerRequestToken($consumer_key, $options = array())
     {
-        $token  = $this->generateKey(true);
+        $token = $this->generateKey(true);
         $secret = $this->generateKey();
-        $osr_id    = $this->query_one('
+        $osr_id = $this->query_one('
                         SELECT osr_id
                         FROM oauth_server_registry
                         WHERE osr_consumer_key = \'%s\'
                           AND osr_enabled      = \'1\'
                         ', $consumer_key);
 
-        if (!$osr_id)
-        {
-            throw new OAuthException2('No server with consumer_key "'.$consumer_key.'" or consumer_key is disabled');
+        if (!$osr_id) {
+            throw new OAuthException2('No server with consumer_key "' . $consumer_key . '" or consumer_key is disabled');
         }
 
-        if (isset($options['token_ttl']) && is_numeric($options['token_ttl']))
-        {
+        if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
             $ttl = intval($options['token_ttl']);
-        }
-        else
-        {
+        } else {
             $ttl = $this->max_request_token_ttl;
         }
 
         if (!isset($options['oauth_callback'])) {
-             // 1.0a Compatibility : store callback url associated with request token
-            $options['oauth_callback']='oob';
-         }
+            // 1.0a Compatibility : store callback url associated with request token
+            $options['oauth_callback'] = 'oob';
+        }
 
         $this->query('
             INSERT INTO oauth_server_token (
@@ -1242,9 +1133,9 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                 ost_callback_url
             )
             VALUES (%d, \'1\', \'%s\', \'%s\', \'request\', NOW() + INTERVAL \'%d SECOND\', \'%s\')',
-                $osr_id, $token, $secret, $ttl, $options['oauth_callback']);
+            $osr_id, $token, $secret, $ttl, $options['oauth_callback']);
 
-        return array('token'=>$token, 'token_secret'=>$secret, 'token_ttl'=>$ttl);
+        return array('token' => $token, 'token_secret' => $secret, 'token_ttl' => $ttl);
     }
 
     /**
@@ -1253,7 +1144,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param string token
      * @return array  token and consumer details
      */
-    public function getConsumerRequestToken ( $token )
+    public function getConsumerRequestToken($token)
     {
         $rs = $this->query_row_assoc('
                 SELECT    ost_token            as token,
@@ -1281,7 +1172,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      *
      * @param string token
      */
-    public function deleteConsumerRequestToken ( $token )
+    public function deleteConsumerRequestToken($token)
     {
         $this->query('
                     DELETE FROM oauth_server_token
@@ -1297,10 +1188,10 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int     user_id  user authorizing the token
      * @param string referrer_host used to set the referrer host for this token, for user feedback
      */
-    public function authorizeConsumerRequestToken ( $token, $user_id, $referrer_host = '' )
+    public function authorizeConsumerRequestToken($token, $user_id, $referrer_host = '')
     {
-         // 1.0a Compatibility : create a token verifier
-         $verifier = substr(md5(rand()),0,10);
+        // 1.0a Compatibility : create a token verifier
+        $verifier = substr(md5(rand()), 0, 10);
 
         $this->query('
                     UPDATE oauth_server_token
@@ -1321,7 +1212,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param string consumer_key
      * @return int
      */
-    public function countConsumerAccessTokens ( $consumer_key )
+    public function countConsumerAccessTokens($consumer_key)
     {
         $count = $this->query_one('
                     SELECT COUNT(ost_id)
@@ -1344,48 +1235,45 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @exception OAuthException2 when token could not be exchanged
      * @return array (token, token_secret)
      */
-    public function exchangeConsumerRequestForAccessToken ( $token, $options = array() )
+    public function exchangeConsumerRequestForAccessToken($token, $options = array())
     {
-        $new_token  = $this->generateKey(true);
+        $new_token = $this->generateKey(true);
         $new_secret = $this->generateKey();
 
         // Maximum time to live for this token
-        if (isset($options['token_ttl']) && is_numeric($options['token_ttl']))
-        {
-            $ttl_sql = '(NOW() + INTERVAL \''.intval($options['token_ttl']).' SECOND\')';
-        }
-        else
-        {
+        if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
+            $ttl_sql = '(NOW() + INTERVAL \'' . intval($options['token_ttl']) . ' SECOND\')';
+        } else {
             $ttl_sql = "'9999-12-31'";
         }
 
-         if (isset($options['verifier'])) {
-             $verifier = $options['verifier'];
+        if (isset($options['verifier'])) {
+            $verifier = $options['verifier'];
 
-             // 1.0a Compatibility : check token against oauth_verifier
-             $this->query('
+            // 1.0a Compatibility : check token against oauth_verifier
+            $this->query('
                          UPDATE oauth_server_token
                          SET ost_token            = \'%s\',
                              ost_token_secret    = \'%s\',
                              ost_token_type        = \'access\',
                              ost_timestamp        = NOW(),
-                             ost_token_ttl       = '.$ttl_sql.'
+                             ost_token_ttl       = ' . $ttl_sql . '
                          WHERE ost_token      = \'%s\'
                            AND ost_token_type = \'request\'
                            AND ost_authorized = \'1\'
                            AND ost_token_ttl  >= NOW()
                            AND ost_verifier = \'%s\'
                          ', $new_token, $new_secret, $token, $verifier);
-         } else {
+        } else {
 
-             // 1.0
-             $this->query('
+            // 1.0
+            $this->query('
                          UPDATE oauth_server_token
                          SET ost_token            = \'%s\',
                              ost_token_secret    = \'%s\',
                              ost_token_type        = \'access\',
                              ost_timestamp        = NOW(),
-                             ost_token_ttl       = '.$ttl_sql.'
+                             ost_token_ttl       = ' . $ttl_sql . '
                          WHERE ost_token      = \'%s\'
                            AND ost_token_type = \'request\'
                            AND ost_authorized = \'1\'
@@ -1393,9 +1281,8 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                          ', $new_token, $new_secret, $token);
         }
 
-        if ($this->query_affected_rows() != 1)
-        {
-            throw new OAuthException2('Can\'t exchange request token "'.$token.'" for access token. No such token or not authorized');
+        if ($this->query_affected_rows() != 1) {
+            throw new OAuthException2('Can\'t exchange request token "' . $token . '" for access token. No such token or not authorized');
         }
 
         $ret = array('token' => $new_token, 'token_secret' => $new_secret);
@@ -1404,8 +1291,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                     FROM oauth_server_token
                     WHERE ost_token = \'%s\'', $new_token);
 
-        if (is_numeric($ttl))
-        {
+        if (is_numeric($ttl)) {
             $ret['token_ttl'] = intval($ttl);
         }
         return $ret;
@@ -1419,7 +1305,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @exception OAuthException2 when token is not found
      * @return array  token and consumer details
      */
-    public function getConsumerAccessToken ( $token, $user_id )
+    public function getConsumerAccessToken($token, $user_id)
     {
         $rs = $this->query_row_assoc('
                 SELECT    ost_token                as token,
@@ -1440,9 +1326,8 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                   AND ost_token_ttl  >= NOW()
                 ', $token, $user_id);
 
-        if (empty($rs))
-        {
-            throw new OAuthException2('No server_token "'.$token.'" for user "'.$user_id.'"');
+        if (empty($rs)) {
+            throw new OAuthException2('No server_token "' . $token . '" for user "' . $user_id . '"');
         }
         return $rs;
     }
@@ -1454,18 +1339,15 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int user_id
      * @param boolean user_is_admin
      */
-    public function deleteConsumerAccessToken ( $token, $user_id, $user_is_admin = false )
+    public function deleteConsumerAccessToken($token, $user_id, $user_is_admin = false)
     {
-        if ($user_is_admin)
-        {
+        if ($user_is_admin) {
             $this->query('
                         DELETE FROM oauth_server_token
                         WHERE ost_token      = \'%s\'
                           AND ost_token_type = \'access\'
                         ', $token);
-        }
-        else
-        {
+        } else {
             $this->query('
                         DELETE FROM oauth_server_token
                         WHERE ost_token      = \'%s\'
@@ -1482,15 +1364,12 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param string token
      * @param int ttl
      */
-    public function setConsumerAccessTokenTtl ( $token, $token_ttl )
+    public function setConsumerAccessTokenTtl($token, $token_ttl)
     {
-        if ($token_ttl <= 0)
-        {
+        if ($token_ttl <= 0) {
             // Immediate delete when the token is past its ttl
             $this->deleteConsumerAccessToken($token, 0, true);
-        }
-        else
-        {
+        } else {
             // Set maximum time to live for this token
             $this->query('
                         UPDATE oauth_server_token
@@ -1508,7 +1387,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int user_id
      * @return array
      */
-    public function listConsumers ( $user_id )
+    public function listConsumers($user_id)
     {
         $rs = $this->query_all_assoc('
                 SELECT    osr_id                    as id,
@@ -1563,7 +1442,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int user_id
      * @return array
      */
-    public function listConsumerTokens ( $user_id )
+    public function listConsumerTokens($user_id)
     {
         $rs = $this->query_all_assoc('
                 SELECT    osr_consumer_key         as consumer_key,
@@ -1600,7 +1479,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param string     nonce
      * @exception OAuthException2    thrown when the timestamp is not in sequence or nonce is not unique
      */
-    public function checkServerNonce ( $consumer_key, $token, $timestamp, $nonce )
+    public function checkServerNonce($consumer_key, $token, $timestamp, $nonce)
     {
         $r = $this->query_row('
                             SELECT MAX(osn_timestamp), MAX(osn_timestamp) > %d + %d
@@ -1609,9 +1488,8 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                               AND osn_token        = \'%s\'
                             ', $timestamp, $this->max_timestamp_skew, $consumer_key, $token);
 
-        if (!empty($r) && $r[1] === 't')
-        {
-            throw new OAuthException2('Timestamp is out of sequence. Request rejected. Got '.$timestamp.' last max is '.$r[0].' allowed skew is '.$this->max_timestamp_skew);
+        if (!empty($r) && $r[1] === 't') {
+            throw new OAuthException2('Timestamp is out of sequence. Request rejected. Got ' . $timestamp . ' last max is ' . $r[0] . ' allowed skew is ' . $this->max_timestamp_skew);
         }
 
         // Insert the new combination
@@ -1625,8 +1503,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
             VALUES (\'%s\', \'%s\', %d, \'%s\')',
             $consumer_key, $token, $timestamp, $nonce);
 
-        if ($this->query_affected_rows() == 0)
-        {
+        if ($this->query_affected_rows() == 0) {
             throw new OAuthException2('Duplicate timestamp/nonce combination, possible replay attack.  Request rejected.');
         }
 
@@ -1649,45 +1526,45 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param string notes
      * @param int (optional) user_id
      */
-    public function addLog ( $keys, $received, $sent, $base_string, $notes, $user_id = null )
+    public function addLog($keys, $received, $sent, $base_string, $notes, $user_id = null)
     {
         $args = array();
-        $ps   = array();
-        foreach ($keys as $key => $value)
-        {
+        $ps = array();
+        foreach ($keys as $key => $value) {
             $args[] = $value;
-            $ps[]   = "olg_$key = '%s'";
+            $ps[] = "olg_$key = '%s'";
         }
 
-        if (!empty($_SERVER['REMOTE_ADDR']))
-        {
+        if (!empty($_SERVER['REMOTE_ADDR'])) {
             $remote_ip = $_SERVER['REMOTE_ADDR'];
-        }
-        else if (!empty($_SERVER['REMOTE_IP']))
-        {
+        } else if (!empty($_SERVER['REMOTE_IP'])) {
             $remote_ip = $_SERVER['REMOTE_IP'];
-        }
-        else
-        {
+        } else {
             $remote_ip = '0.0.0.0';
         }
 
         // Build the SQL
-        $ps['olg_received']    = "'%s'";                        $args[] = $this->makeUTF8($received);
-        $ps['olg_sent']        = "'%s'";                        $args[] = $this->makeUTF8($sent);
-        $ps['olg_base_string'] = "'%s'";                        $args[] = $base_string;
-        $ps['olg_notes']       = "'%s'";                        $args[] = $this->makeUTF8($notes);
-        $ps['olg_usa_id_ref'] = "NULLIF('%d', '0')";            $args[] = $user_id;
-        $ps['olg_remote_ip']  = "NULLIF('%s','0.0.0.0')";        $args[] = $remote_ip;
+        $ps['olg_received'] = "'%s'";
+        $args[] = $this->makeUTF8($received);
+        $ps['olg_sent'] = "'%s'";
+        $args[] = $this->makeUTF8($sent);
+        $ps['olg_base_string'] = "'%s'";
+        $args[] = $base_string;
+        $ps['olg_notes'] = "'%s'";
+        $args[] = $this->makeUTF8($notes);
+        $ps['olg_usa_id_ref'] = "NULLIF('%d', '0')";
+        $args[] = $user_id;
+        $ps['olg_remote_ip'] = "NULLIF('%s','0.0.0.0')";
+        $args[] = $remote_ip;
 
         $this->query('
-            INSERT INTO oauth_log ('.implode(',', array_keys($ps)) . ')
+            INSERT INTO oauth_log (' . implode(',', array_keys($ps)) . ')
             VALUES(' . implode(',', $ps) . ')',
             $args
         );
     }
 
-     /**
+    /**
      * Get a page of entries from the log.  Returns the last 100 records
      * matching the options given.
      *
@@ -1695,36 +1572,30 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param int user_id    current user
      * @return array log records
      */
-    public function listLog ( $options, $user_id )
+    public function listLog($options, $user_id)
     {
         $where = array();
-        $args  = array();
-        if (empty($options))
-        {
+        $args = array();
+        if (empty($options)) {
             $where[] = 'olg_usa_id_ref = \'%d\'';
-            $args[]  = $user_id;
-        }
-        else
-        {
-            foreach ($options as $option => $value)
-            {
-                if (strlen($value) > 0)
-                {
-                    switch ($option)
-                    {
-                    case 'osr_consumer_key':
-                    case 'ocr_consumer_key':
-                    case 'ost_token':
-                    case 'oct_token':
-                        $where[] = 'olg_'.$option.' = \'%s\'';
-                        $args[]  = $value;
-                        break;
+            $args[] = $user_id;
+        } else {
+            foreach ($options as $option => $value) {
+                if (strlen($value) > 0) {
+                    switch ($option) {
+                        case 'osr_consumer_key':
+                        case 'ocr_consumer_key':
+                        case 'ost_token':
+                        case 'oct_token':
+                            $where[] = 'olg_' . $option . ' = \'%s\'';
+                            $args[] = $value;
+                            break;
                     }
                 }
             }
 
             $where[] = '(olg_usa_id_ref IS NULL OR olg_usa_id_ref = \'%d\')';
-            $args[]  = $user_id;
+            $args[] = $user_id;
         }
 
         $rs = $this->query_all_assoc('
@@ -1741,7 +1612,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                             olg_timestamp            AS timestamp,
                             olg_remote_ip           AS remote_ip
                     FROM oauth_log
-                    WHERE '.implode(' AND ', $where).'
+                    WHERE ' . implode(' AND ', $where) . '
                     ORDER BY olg_id DESC
                     LIMIT 0,100', $args);
 
@@ -1757,16 +1628,14 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param string sql
      * @param vararg arguments (for sprintf)
      */
-    protected function query ( $sql )
+    protected function query($sql)
     {
         $sql = $this->sql_printf(func_get_args());
-        if (!($res = pg_query($this->conn, $sql)))
-        {
+        if (!($res = pg_query($this->conn, $sql))) {
             $this->sql_errcheck($sql);
         }
         $this->_lastAffectedRows = pg_affected_rows($res);
-        if (is_resource($res))
-        {
+        if (is_resource($res)) {
             pg_free_result($res);
         }
     }
@@ -1779,16 +1648,14 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param vararg arguments (for sprintf)
      * @return array
      */
-    protected function query_all_assoc ( $sql )
+    protected function query_all_assoc($sql)
     {
         $sql = $this->sql_printf(func_get_args());
-        if (!($res = pg_query($this->conn, $sql)))
-        {
+        if (!($res = pg_query($this->conn, $sql))) {
             $this->sql_errcheck($sql);
         }
         $rs = array();
-        while ($row  = pg_fetch_assoc($res))
-        {
+        while ($row = pg_fetch_assoc($res)) {
             $rs[] = $row;
         }
         pg_free_result($res);
@@ -1803,20 +1670,16 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param vararg arguments (for sprintf)
      * @return array
      */
-    protected function query_row_assoc ( $sql )
+    protected function query_row_assoc($sql)
     {
         $sql = $this->sql_printf(func_get_args());
 
-        if (!($res = pg_query($this->conn, $sql)))
-        {
+        if (!($res = pg_query($this->conn, $sql))) {
             $this->sql_errcheck($sql);
         }
-        if ($row = pg_fetch_assoc($res))
-        {
+        if ($row = pg_fetch_assoc($res)) {
             $rs = $row;
-        }
-        else
-        {
+        } else {
             $rs = false;
         }
         pg_free_result($res);
@@ -1830,19 +1693,15 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param vararg arguments (for sprintf)
      * @return array
      */
-    protected function query_row ( $sql )
+    protected function query_row($sql)
     {
         $sql = $this->sql_printf(func_get_args());
-        if (!($res = pg_query($this->conn, $sql)))
-        {
+        if (!($res = pg_query($this->conn, $sql))) {
             $this->sql_errcheck($sql);
         }
-        if ($row = pg_fetch_array($res))
-        {
+        if ($row = pg_fetch_array($res)) {
             $rs = $row;
-        }
-        else
-        {
+        } else {
             $rs = false;
         }
         pg_free_result($res);
@@ -1857,11 +1716,10 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      * @param vararg arguments (for sprintf)
      * @return mixed
      */
-    protected function query_one ( $sql )
+    protected function query_one($sql)
     {
         $sql = $this->sql_printf(func_get_args());
-        if (!($res = pg_query($this->conn, $sql)))
-        {
+        if (!($res = pg_query($this->conn, $sql))) {
             $this->sql_errcheck($sql);
         }
         $val = pg_fetch_row($res);
@@ -1876,7 +1734,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
     /**
      * Return the number of rows affected in the last query
      */
-    protected function query_affected_rows ()
+    protected function query_affected_rows()
     {
         return $this->_lastAffectedRows;
     }
@@ -1887,7 +1745,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
      *
      * @return int
      */
-    protected function query_insert_id ( $tableName, $primaryKey = null )
+    protected function query_insert_id($tableName, $primaryKey = null)
     {
         $sequenceName = $tableName;
         if ($primaryKey) {
@@ -1914,11 +1772,10 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
     }
 
 
-    protected function sql_printf ( $args )
+    protected function sql_printf($args)
     {
-        $sql  = array_shift($args);
-        if (count($args) == 1 && is_array($args[0]))
-        {
+        $sql = array_shift($args);
+        if (count($args) == 1 && is_array($args[0])) {
             $args = $args[0];
         }
         $args = array_map(array($this, 'sql_escape_string'), $args);
@@ -1926,34 +1783,25 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
     }
 
 
-    protected function sql_escape_string ( $s )
+    protected function sql_escape_string($s)
     {
-        if (is_string($s))
-        {
+        if (is_string($s)) {
             return pg_escape_string($this->conn, $s);
-        }
-        else if (is_null($s))
-        {
+        } else if (is_null($s)) {
             return NULL;
-        }
-        else if (is_bool($s))
-        {
+        } else if (is_bool($s)) {
             return intval($s);
-        }
-        else if (is_int($s) || is_float($s))
-        {
+        } else if (is_int($s) || is_float($s)) {
             return $s;
-        }
-        else
-        {
+        } else {
             return pg_escape_string($this->conn, strval($s));
         }
     }
 
 
-    protected function sql_errcheck ( $sql )
+    protected function sql_errcheck($sql)
     {
-            $msg =  "SQL Error in OAuthStorePostgreSQL: ".pg_last_error($this->conn)."\n\n" . $sql;
-            throw new OAuthException2($msg);
+        $msg = "SQL Error in OAuthStorePostgreSQL: " . pg_last_error($this->conn) . "\n\n" . $sql;
+        throw new OAuthException2($msg);
     }
 }
