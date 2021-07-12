@@ -33,7 +33,7 @@ namespace OAuth1\signature;
  */
 
 
-require_once __DIR__ . '/OAuthSignatureMethod.class.php';
+require_once __DIR__ . '/OAuthSignatureMethod.php';
 
 class OAuthSignatureMethodRSASHA1 extends OAuthSignatureMethod
 {
@@ -93,7 +93,7 @@ class OAuthSignatureMethodRSASHA1 extends OAuthSignatureMethod
         $cert = $this->fetch_private_cert($request);
 
         // Pull the private key ID from the certificate
-        $privatekeyid = openssl_get_privatekey($cert);
+        $privatekeyid = openssl_pkey_get_private($cert);
 
         // Sign using the key
         $sig = false;

@@ -112,7 +112,7 @@ class OAuthStoreMySQLi extends OAuthStoreSQL
             $this->sql_errcheck($sql);
         }
         if (!is_bool($res)) {
-            ((mysqli_free_result($res) || (is_object($res) && (get_class($res) == "mysqli_result"))) ? true : false);
+            ((mysqli_free_result($res) || (is_object($res) && ($res instanceof \mysqli_result))) ? true : false);
         }
     }
 
@@ -134,7 +134,7 @@ class OAuthStoreMySQLi extends OAuthStoreSQL
         while ($row = mysqli_fetch_assoc($res)) {
             $rs[] = $row;
         }
-        ((mysqli_free_result($res) || (is_object($res) && (get_class($res) == "mysqli_result"))) ? true : false);
+        ((mysqli_free_result($res) || (is_object($res) && ($res instanceof \mysqli_result))) ? true : false);
         return $rs;
     }
 
@@ -157,7 +157,7 @@ class OAuthStoreMySQLi extends OAuthStoreSQL
         } else {
             $rs = false;
         }
-        ((mysqli_free_result($res) || (is_object($res) && (get_class($res) == "mysqli_result"))) ? true : false);
+        ((mysqli_free_result($res) || (is_object($res) && ($res instanceof \mysqli_result))) ? true : false);
         return $rs;
     }
 
@@ -180,7 +180,7 @@ class OAuthStoreMySQLi extends OAuthStoreSQL
         } else {
             $rs = false;
         }
-        ((mysqli_free_result($res) || (is_object($res) && (get_class($res) == "mysqli_result"))) ? true : false);
+        ((mysqli_free_result($res) || (is_object($res) && ($res instanceof \mysqli_result))) ? true : false);
         return $rs;
     }
 
@@ -203,7 +203,7 @@ class OAuthStoreMySQLi extends OAuthStoreSQL
         } else {
             $val = false;
         }
-        ((mysqli_free_result($res) || (is_object($res) && (get_class($res) == "mysqli_result"))) ? true : false);
+        ((mysqli_free_result($res) || (is_object($res) && ($res instanceof \mysqli_result))) ? true : false);
         return $val;
     }
 

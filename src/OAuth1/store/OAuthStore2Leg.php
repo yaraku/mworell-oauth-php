@@ -34,7 +34,7 @@ namespace OAuth1\store;
 
 use OAuth1\OAuthException2;
 
-require_once __DIR__ . '/OAuthStoreAbstract.class.php';
+require_once __DIR__ . '/OAuthStoreAbstract.php';
 
 class OAuthStore2Leg extends OAuthStoreAbstract
 {

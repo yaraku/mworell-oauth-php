@@ -32,7 +32,7 @@ namespace OAuth1\signature;
  * THE SOFTWARE.
  */
 
-require_once __DIR__ . '/OAuthSignatureMethod.class.php';
+require_once __DIR__ . '/OAuthSignatureMethod.php';
 
 
 class OAuthSignatureMethodMD5 extends OAuthSignatureMethod

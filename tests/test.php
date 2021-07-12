@@ -9,9 +9,7 @@ use OAuth1\OAuthStore;
 
 print_r(get_declared_classes());
 
-//$server = new OAuthServer();
-//$session = new OAuthSession();
+$server = new OAuthServer();
+$session = new OAuthSession();
 $request = new OAuthRequest();
-//$store = new OAuthStore();
-
-?>
+$store = OAuthStore::instance();

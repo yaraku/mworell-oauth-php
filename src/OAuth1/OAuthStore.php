@@ -33,18 +33,16 @@ namespace OAuth1;
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-//require_once dirname(__FILE__) . '/OAuthException2.php';
-
 class OAuthStore
 {
-    static private $instance = false;
+    private static $instance;
 
     /**
      * Request an instance of the OAuthStore
      */
-    public static function instance($store = 'MySQL', $options = array())
+    public static function instance($store = 'MySQLi', $options = array())
     {
-        if (!OAuthStore::$instance) {
+        if (!self::$instance) {
             // Select the store you want to use
             if (strpos($store, '/') === false) {
                 $class = 'OAuth1\\store\\OAuthStore' . $store;
@@ -55,30 +53,10 @@ class OAuthStore
                 $class = $store;
             }
 
-            OAuthStore::$instance = new $class($options);
-            // if (is_file($file))
-            // {
-            // 	require_once $file;
-
-            // 	if (class_exists($class))
-            // 	{
-            // 		OAuthStore::$instance = new $class($options);
-            // 	}
-            // 	else
-            // 	{
-            // 		throw new OAuthException2('Could not find class '.$class.' in file '.$file);
-            // 	}
-            // }
-            // else
-            // {
-            // 	throw new OAuthException2('No OAuthStore for '.$store.' (file '.$file.')');
-            // }
+            self::$instance = new $class($options);
         }
-        return OAuthStore::$instance;
+        return self::$instance;
     }
 }
 
-
 /* vi:set ts=4 sts=4 sw=4 binary noeol: */
-
-

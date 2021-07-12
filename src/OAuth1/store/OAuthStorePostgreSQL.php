@@ -35,7 +35,7 @@ namespace OAuth1\store;
  * THE SOFTWARE.
  **/
 
-require_once __DIR__ . '/OAuthStoreAbstract.class.php';
+require_once __DIR__ . '/OAuthStoreAbstract.php';
 
 
 class OAuthStorePostgreSQL extends OAuthStoreAbstract
