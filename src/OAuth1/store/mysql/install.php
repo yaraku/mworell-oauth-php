@@ -17,18 +17,16 @@ if (mysql_errno())
 mysql_select_db('test');
 */
 
-$sql = file_get_contents(dirname(__FILE__) . '/mysql.sql');
-$ps  = explode('#--SPLIT--', $sql);
+$sql = file_get_contents(__DIR__ . '/mysql.sql');
+$ps = explode('#--SPLIT--', $sql);
 
-foreach ($ps as $p)
-{
-	$p = preg_replace('/^\s*#.*$/m', '', $p);
-	
-	mysql_query($p);
-	if (mysql_errno())
-	{
-		die(' Error '.mysql_errno().': '.mysql_error());
-	}
+foreach ($ps as $p) {
+    $p = preg_replace('/^\s*#.*$/m', '', $p);
+
+    mysqli_query($p);
+    if (mysqli_errno()) {
+        die(' Error ' . mysqli_errno() . ': ' . mysqli_error());
+    }
 }
 
-?>
+
