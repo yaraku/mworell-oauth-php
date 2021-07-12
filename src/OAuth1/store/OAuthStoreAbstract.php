@@ -116,7 +116,7 @@ abstract class OAuthStoreAbstract
      */
     public function generateKey($unique = false)
     {
-        $key = md5(uniqid(rand(), true));
+        $key = md5(uniqid(mt_rand(), true));
         if ($unique) {
             list($usec, $sec) = explode(' ', microtime());
             $key .= dechex($usec) . dechex($sec);
