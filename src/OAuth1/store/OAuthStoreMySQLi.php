@@ -246,11 +246,11 @@ class OAuthStoreMySQLi extends OAuthStoreSQL
         } else if (is_null($s)) {
             return NULL;
         } else if (is_bool($s)) {
-            return intval($s);
+            return (int)$s;
         } else if (is_int($s) || is_float($s)) {
             return $s;
         } else {
-            return mysqli_real_escape_string($this->conn, strval($s));
+            return mysqli_real_escape_string($this->conn, (string)$s);
         }
     }
 

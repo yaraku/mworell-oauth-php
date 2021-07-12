@@ -217,11 +217,11 @@ class OAuthStorePDO extends OAuthStoreSQL
         } else if (is_null($s)) {
             return NULL;
         } else if (is_bool($s)) {
-            return intval($s);
+            return (int)$s;
         } else if (is_int($s) || is_float($s)) {
             return $s;
         } else {
-            return $this->conn->quote(strval($s));
+            return $this->conn->quote((string)$s);
         }
     }
 

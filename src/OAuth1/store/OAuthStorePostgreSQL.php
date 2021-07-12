@@ -292,7 +292,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
 
         // Maximum time to live for this token
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $ttl = 'NOW() + INTERVAL \'' . intval($options['token_ttl']) . ' SECOND\'';
+            $ttl = 'NOW() + INTERVAL \'' . (int)$options['token_ttl'] . ' SECOND\'';
         } else if ($token_type == 'request') {
             $ttl = 'NOW() + INTERVAL \'' . $this->max_request_token_ttl . ' SECOND\'';
         } else {
@@ -748,7 +748,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
             if (is_null($server['user_id'])) {
                 $update_user = ', ocr_usa_id_ref = NULL';
             } else {
-                $update_user = ', ocr_usa_id_ref = \'' . intval($server['user_id']) . '\'';
+                $update_user = ', ocr_usa_id_ref = \'' . (int)$server['user_id'] . '\'';
             }
         } else {
             $update_user = '';
@@ -801,7 +801,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
             if (empty($update_user)) {
                 // Per default the user owning the key is the user registering the key
                 $update_user_field = ', ocr_usa_id_ref';
-                $update_user_value = ', ' . intval($user_id);
+                $update_user_value = ', ' . (int)$user_id;
             }
 
             $this->query('
@@ -938,11 +938,11 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                 if (is_null($consumer['user_id'])) {
                     $owner_id = 'NULL';
                 } else {
-                    $owner_id = intval($consumer['user_id']);
+                    $owner_id = (int)$consumer['user_id'];
                 }
             } else {
                 // No admin, take the user id as the owner id.
-                $owner_id = intval($user_id);
+                $owner_id = (int)$user_id;
             }
 
             $this->query('
@@ -1112,7 +1112,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
         }
 
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $ttl = intval($options['token_ttl']);
+            $ttl = (int)$options['token_ttl'];
         } else {
             $ttl = $this->max_request_token_ttl;
         }
@@ -1242,7 +1242,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
 
         // Maximum time to live for this token
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $ttl_sql = '(NOW() + INTERVAL \'' . intval($options['token_ttl']) . ' SECOND\')';
+            $ttl_sql = '(NOW() + INTERVAL \'' . (int)$options['token_ttl'] . ' SECOND\')';
         } else {
             $ttl_sql = "'9999-12-31'";
         }
@@ -1292,7 +1292,7 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
                     WHERE ost_token = \'%s\'', $new_token);
 
         if (is_numeric($ttl)) {
-            $ret['token_ttl'] = intval($ttl);
+            $ret['token_ttl'] = (int)$ttl;
         }
         return $ret;
     }
@@ -1790,11 +1790,11 @@ class OAuthStorePostgreSQL extends OAuthStoreAbstract
         } else if (is_null($s)) {
             return NULL;
         } else if (is_bool($s)) {
-            return intval($s);
+            return (int)$s;
         } else if (is_int($s) || is_float($s)) {
             return $s;
         } else {
-            return pg_escape_string($this->conn, strval($s));
+            return pg_escape_string($this->conn, (string)$s);
         }
     }
 

@@ -300,9 +300,9 @@ abstract class OAuthStoreOracle extends OAuthStoreAbstract
 
         // Maximum time to live for this token
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $ttl = intval($options['token_ttl']);
+            $ttl = (int)$options['token_ttl'];
         } else if ($token_type == 'request') {
-            $ttl = intval($this->max_request_token_ttl);
+            $ttl = (int)$this->max_request_token_ttl;
         } else {
             $ttl = NULL;
         }
@@ -952,7 +952,7 @@ abstract class OAuthStoreOracle extends OAuthStoreAbstract
 
 
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $ttl = intval($options['token_ttl']);
+            $ttl = (int)$options['token_ttl'];
         } else {
             $ttl = $this->max_request_token_ttl;
         }
@@ -1141,7 +1141,7 @@ abstract class OAuthStoreOracle extends OAuthStoreAbstract
 
         $ret = array('token' => $new_token, 'token_secret' => $new_secret);
         if (is_numeric($ttl)) {
-            $ret['token_ttl'] = intval($ttl);
+            $ret['token_ttl'] = (int)$ttl;
         }
         return $ret;
     }

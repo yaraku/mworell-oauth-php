@@ -287,7 +287,7 @@ abstract class OAuthStoreSQL extends OAuthStoreAbstract
 
         // Maximum time to live for this token
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $ttl = 'DATE_ADD(NOW(), INTERVAL ' . intval($options['token_ttl']) . ' SECOND)';
+            $ttl = 'DATE_ADD(NOW(), INTERVAL ' . (int)$options['token_ttl'] . ' SECOND)';
         } else if ($token_type == 'request') {
             $ttl = 'DATE_ADD(NOW(), INTERVAL ' . $this->max_request_token_ttl . ' SECOND)';
         } else {
@@ -739,7 +739,7 @@ abstract class OAuthStoreSQL extends OAuthStoreAbstract
             if (is_null($server['user_id'])) {
                 $update_user = ', ocr_usa_id_ref = NULL';
             } else {
-                $update_user = ', ocr_usa_id_ref = ' . intval($server['user_id']);
+                $update_user = ', ocr_usa_id_ref = ' . (int)$server['user_id'];
             }
         } else {
             $update_user = '';
@@ -789,7 +789,7 @@ abstract class OAuthStoreSQL extends OAuthStoreAbstract
         } else {
             if (empty($update_user)) {
                 // Per default the user owning the key is the user registering the key
-                $update_user = ', ocr_usa_id_ref = ' . intval($user_id);
+                $update_user = ', ocr_usa_id_ref = ' . (int)$user_id;
             }
 
             $this->query('
@@ -925,11 +925,11 @@ abstract class OAuthStoreSQL extends OAuthStoreAbstract
                 if (is_null($consumer['user_id'])) {
                     $owner_id = 'NULL';
                 } else {
-                    $owner_id = intval($consumer['user_id']);
+                    $owner_id = (int)$consumer['user_id'];
                 }
             } else {
                 // No admin, take the user id as the owner id.
-                $owner_id = intval($user_id);
+                $owner_id = (int)$user_id;
             }
 
             $this->query('
@@ -1098,7 +1098,7 @@ abstract class OAuthStoreSQL extends OAuthStoreAbstract
         }
 
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $ttl = intval($options['token_ttl']);
+            $ttl = (int)$options['token_ttl'];
         } else {
             $ttl = $this->max_request_token_ttl;
         }
@@ -1240,7 +1240,7 @@ abstract class OAuthStoreSQL extends OAuthStoreAbstract
 
         // Maximum time to live for this token
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $ttl_sql = 'DATE_ADD(NOW(), INTERVAL ' . intval($options['token_ttl']) . ' SECOND)';
+            $ttl_sql = 'DATE_ADD(NOW(), INTERVAL ' . (int)$options['token_ttl'] . ' SECOND)';
         } else {
             $ttl_sql = "'9999-12-31'";
         }
@@ -1290,7 +1290,7 @@ abstract class OAuthStoreSQL extends OAuthStoreAbstract
 					WHERE ost_token = \'%s\'', $new_token);
 
         if (is_numeric($ttl)) {
-            $ret['token_ttl'] = intval($ttl);
+            $ret['token_ttl'] = (int)$ttl;
         }
         return $ret;
     }

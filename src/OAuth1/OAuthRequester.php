@@ -97,7 +97,7 @@ class OAuthRequester extends OAuthRequestSigner
     {
         $name = isset($options['name']) ? $options['name'] : '';
         if (isset($options['token_ttl'])) {
-            $this->setParam('xoauth_token_ttl', intval($options['token_ttl']));
+            $this->setParam('xoauth_token_ttl', (int)$options['token_ttl']);
         }
 
         if (!empty($this->files)) {
@@ -143,7 +143,7 @@ class OAuthRequester extends OAuthRequestSigner
         OAuthRequestLogger::start();
 
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $params['xoauth_token_ttl'] = intval($options['token_ttl']);
+            $params['xoauth_token_ttl'] = (int)$options['token_ttl'];
         }
 
         $store = OAuthStore::instance();
@@ -225,7 +225,7 @@ class OAuthRequester extends OAuthRequestSigner
             $oauth->setParam('oauth_verifier', $options['oauth_verifier']);
         }
         if (isset($options['token_ttl']) && is_numeric($options['token_ttl'])) {
-            $oauth->setParam('xoauth_token_ttl', intval($options['token_ttl']));
+            $oauth->setParam('xoauth_token_ttl', (int)$options['token_ttl']);
         }
 
         OAuthRequestLogger::setRequestObject($oauth);

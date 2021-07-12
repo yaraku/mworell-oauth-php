@@ -248,7 +248,7 @@ function xrds_priority($elt)
     if ($elt->hasAttribute('priority')) {
         $prio = $elt->getAttribute('priority');
         if (is_numeric($prio)) {
-            $prio = intval($prio);
+            $prio = (int)$prio;
         }
     } else {
         $prio = 'null';
