@@ -60,8 +60,9 @@ class OAuthSignatureMethodMD5 extends OAuthSignatureMethod
         $md5 = md5($base_string);
         $bin = '';
 
-        for ($i = 0; $i < strlen($md5); $i += 2) {
-            $bin .= chr(hexdec($md5{$i + 1}) + hexdec($md5{$i}) * 16);
+        $md5Length = strlen($md5);
+        for ($i = 0; $i < $md5Length; $i += 2) {
+            $bin .= chr(hexdec($md5[$i + 1]) + hexdec($md5[$i]) * 16);
         }
         return $request->urlencode(base64_encode($bin));
     }

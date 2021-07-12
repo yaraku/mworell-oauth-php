@@ -692,7 +692,7 @@ class OAuthRequest
                     $body .= $k . '=' . $this->urlencode($v) . '&';
                 } #end foreach
                 if (substr($body, -1) == '&') {
-                    $body = substr($body, 0, strlen($body)-1);
+                    $body = substr($body, 0, -1);
                 } #end if
             } #end if
         } #end if
