@@ -33,15 +33,15 @@ namespace OAuth1\store;
  * THE SOFTWARE.
  */
 
-/*
- * Modified from OAuthStoreMySQL to support MySQLi
- */
-
-require_once dirname(__FILE__) . '/OAuthStoreMySQL.php';
+require_once dirname(__FILE__) . '/OAuthStoreSQL.php';
 
 
-class OAuthStoreMySQLi extends OAuthStoreMySQL
+class OAuthStoreMySQLi extends OAuthStoreSQL
 {
+    /**
+     * The MySQL connection
+     */
+    protected $conn;
 
     public function install()
     {
@@ -258,7 +258,7 @@ class OAuthStoreMySQLi extends OAuthStoreMySQL
     protected function sql_errcheck($sql)
     {
         if (((is_object($this->conn)) ? mysqli_errno($this->conn) : (($___mysqli_res = mysqli_connect_errno()) ? $___mysqli_res : false))) {
-            $msg = "SQL Error in OAuthStoreMySQL: " . ((is_object($this->conn)) ? mysqli_error($this->conn) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . "\n\n" . $sql;
+            $msg = "SQL Error in OAuthStoreMySQLi: " . ((is_object($this->conn)) ? mysqli_error($this->conn) : (($___mysqli_res = mysqli_connect_error()) ? $___mysqli_res : false)) . "\n\n" . $sql;
             throw new OAuthException2($msg);
         }
     }

@@ -23,9 +23,9 @@ $ps = explode('#--SPLIT--', $sql);
 foreach ($ps as $p) {
     $p = preg_replace('/^\s*#.*$/m', '', $p);
 
-    mysql_query($p);
-    if (mysql_errno()) {
-        die(' Error ' . mysql_errno() . ': ' . mysql_error());
+    mysqli_query($p);
+    if (mysqli_errno()) {
+        die(' Error ' . mysqli_errno() . ': ' . mysqli_error());
     }
 }
 

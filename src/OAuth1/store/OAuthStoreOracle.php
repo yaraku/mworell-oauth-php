@@ -52,7 +52,7 @@ abstract class OAuthStoreOracle extends OAuthStoreAbstract
 
 
     /**
-     * Construct the OAuthStoreMySQL.
+     * Construct the OAuthStoreOracle.
      * In the options you have to supply either:
      * - server, username, password and database (for a mysql_connect)
      * - conn (for the connection to be used)

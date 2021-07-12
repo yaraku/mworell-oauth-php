@@ -228,7 +228,7 @@ class OAuthStorePDO extends OAuthStoreSQL
 
     protected function sql_errcheck($sql)
     {
-        $msg = "SQL Error in OAuthStoreMySQL: " . print_r($this->conn->errorInfo(), true) . "\n\n" . $sql;
+        $msg = "SQL Error in OAuthStorePDO: " . print_r($this->conn->errorInfo(), true) . "\n\n" . $sql;
         $backtrace = debug_backtrace();
         $msg .= "\n\nAt file " . $backtrace[1]['file'] . ", line " . $backtrace[1]['line'];
         throw new OAuthException2($msg);

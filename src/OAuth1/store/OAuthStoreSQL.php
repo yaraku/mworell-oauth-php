@@ -8,7 +8,7 @@ use OAuth1\OAuthException2;
  * Storage container for the oauth credentials, both server and consumer side.
  * Based on MySQL
  *
- * @version $Id: OAuthStoreMySQL.php 76 2010-01-27 19:51:17Z brunobg@corollarium.com $
+ * @version $Id: OAuthStoreSQL.php 76 2010-01-27 19:51:17Z brunobg@corollarium.com $
  * @author Marc Worrell <marcw@pobox.com>
  * @date  Nov 16, 2007 4:03:30 PM
  *
@@ -37,7 +37,7 @@ use OAuth1\OAuthException2;
  */
 
 
-require_once dirname(__FILE__) . '/OAuthStoreAbstract.class.php';
+require_once dirname(__FILE__) . '/OAuthStoreAbstract.php';
 
 
 abstract class OAuthStoreSQL extends OAuthStoreAbstract
@@ -56,7 +56,7 @@ abstract class OAuthStoreSQL extends OAuthStoreAbstract
 
 
     /**
-     * Construct the OAuthStoreMySQL.
+     * Construct the OAuthStoreSQL.
      * In the options you have to supply either:
      * - server, username, password and database (for a mysql_connect)
      * - conn (for the connection to be used)
@@ -73,22 +73,22 @@ abstract class OAuthStoreSQL extends OAuthStoreAbstract
                 $username = $options['username'];
 
                 if (isset($options['password'])) {
-                    $this->conn = mysql_connect($server, $username, $options['password']);
+                    $this->conn = mysqli_connect($server, $username, $options['password']);
                 } else {
-                    $this->conn = mysql_connect($server, $username);
+                    $this->conn = mysqli_connect($server, $username);
                 }
             } else {
                 // Try the default mysql connect
-                $this->conn = mysql_connect();
+                $this->conn = mysqli_connect();
             }
 
             if ($this->conn === false) {
-                throw new OAuthException2('Could not connect to MySQL database: ' . mysql_error());
+                throw new OAuthException2('Could not connect to MySQL database: ' . mysqli_error($this->conn));
             }
 
             if (isset($options['database'])) {
-                if (!mysql_select_db($options['database'], $this->conn)) {
-                    $this->sql_errcheck();
+                if (!mysqli_select_db($options['database'], $this->conn)) {
+                    $this->sql_errcheck($this->conn);
                 }
             }
             $this->query('set character set utf8');
